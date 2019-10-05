@@ -5,7 +5,7 @@ import linecache
 import argparse
 
 
-class stdPrinter:
+class colorCodes:
     RED = '\x1b[1;31;40m'
     END = '\x1b[0m'
 
@@ -46,7 +46,7 @@ class regSearch:
             out = ''
         parts = line.split('{}'.format(to_colr))
         for part in parts[:-1]:
-            out += part + stdPrinter.RED + '{}'.format(to_colr) + stdPrinter.END
+            out += part + colorCodes.RED + '{}'.format(to_colr) + colorCodes.END
         return out
 
     def machine(self, filename, line_num,matches,search_str):

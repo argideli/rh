@@ -9,35 +9,6 @@ class stdPrinter:
     RED = '\x1b[1;31;40m'
     END = '\x1b[0m'
 
-    def underscore(self,filename ,line,line_num,matches,search_str):
-        out = '{} line {}: '.format(filename,line_num)
-        offset = len(out)
-        out = out +'{}\n'.format(line)
-        m_pos=[range(a,b) for a,b in zip(matches['start'],matches['stop'])]
-        flatten = lambda l: [i+offset for subl in l for i in subl]
-        for c in range(len(line)+offset):
-            if c in flatten(m_pos):
-                out += '^'
-            else:
-                out += ' '
-        return out
-
-    def colorize(self, filename, line,line_num,to_colr):
-        out = '{} line {}: '.format(filename, line_num)
-        if self.args.underscore == True:
-            out = ''
-        parts = line.split('{}'.format(to_colr))
-        for part in parts[:-1]:
-            out += part + self.RED + '{}'.format(to_colr) + self.END
-        return out
-
-    def machine(self, filename, line_num,matches,search_str):
-        out = ''
-        for match in matches['start']:
-            out += '{}:{}:{}:{}\n'.format(filename,line_num,match,search_str)
-        out = out.rstrip()
-        return out
-
 class regSearch:
     def __init__(self):
         #global args
@@ -54,6 +25,36 @@ class regSearch:
         for arg in vars(self.args):
              print arg, getattr(self.args, arg)
         #exit(0)
+
+    def underscore(self,filename ,line,line_num,matches,search_str):
+        out = '{} line {}: '.format(filename,line_num)
+        offset = len(out)
+        out = out +'{}\n'.format(line)
+        m_pos=[range(a,b) for a,b in zip(matches['start'],matches['stop'])]
+        flatten = lambda l: [i+offset for subl in l for i in subl]
+        for c in range(len(line)+offset):
+            if c in flatten(m_pos):
+                out += '^'
+            else:
+                out += ' '
+        return out
+
+
+    def colorize(self, filename, line,line_num,to_colr):
+        out = '{} line {}: '.format(filename, line_num)
+        if self.args.underscore == True:
+            out = ''
+        parts = line.split('{}'.format(to_colr))
+        for part in parts[:-1]:
+            out += part + stdPrinter.RED + '{}'.format(to_colr) + stdPrinter.END
+        return out
+
+    def machine(self, filename, line_num,matches,search_str):
+        out = ''
+        for match in matches['start']:
+            out += '{}:{}:{}:{}\n'.format(filename,line_num,match,search_str)
+        out = out.rstrip()
+        return out
 
     def get_line(self, infile, line_num):
         line = linecache.getline(infile.name, line_num)
@@ -89,13 +90,13 @@ class regSearch:
             start_pos = matches[line_num]['start']
             end_pos = matches[line_num]['stop']
             if self.args.machine == True:
-                res = stdPrinter.machine(infile.name, line_num, matches[line_num], search_str)
+                res = self.machine(infile.name, line_num, matches[line_num], search_str)
             elif self.args.underscore == True:
-                res = stdPrinter.underscore(infile.name, line, line_num, matches[line_num], search_str)
+                res = self.underscore(infile.name, line, line_num, matches[line_num], search_str)
                 if self.args.color == True:
-                    res = stdPrinter.colorize(infile.name, res, line_num, len(search_str) * '^')
+                    res = self.colorize(infile.name, res, line_num, len(search_str) * '^')
             elif self.args.color == True:
-                res = stdPrinter.colorize(infile.name,line, line_num, search_str)
+                res = self.colorize(infile.name,line, line_num, search_str)
 
 
             print res

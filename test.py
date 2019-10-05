@@ -19,14 +19,16 @@ class regSearch:
                             action="store_true")
         parser.add_argument("-m", "--machine", help="Generate machine readable output",
                             action="store_true")
-        parser.add_argument('file',type=argparse.FileType('r'),nargs='*', default=sys.stdin) # TODO:  encoding='ascii'
+        parser.add_argument('file',type=argparse.FileType('r'),nargs='?', default=sys.stdin) # TODO:  encoding='ascii'
+        parser.add_argument('regex',type=argparse.FileType('r'),nargs='*', default=sys.stdin) # TODO:  encoding='ascii'
         #parser.add_argument('-f', '--file', nargs='+', type=argparse.FileType('r'), help='specify one or more input files')
         self.args = parser.parse_args()
         for arg in vars(self.args):
              print arg, getattr(self.args, arg)
-        #exit(0)
+        exit(0)
 
     def underscore(self,filename ,line,line_num,matches,search_str):
+        """Inserts the underscore ^ character under every character that matches"""
         out = '{} line {}: '.format(filename,line_num)
         offset = len(out)
         out = out +'{}\n'.format(line)

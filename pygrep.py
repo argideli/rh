@@ -34,15 +34,22 @@ class regSearch:
             help="Search expresion enclosed in single quotes ex. 'something.*[0-9]'")
         parser.add_argument(
             'files',
-            type=argparse.FileType('r,encoding=ascii'), #Set encoding
+            type=argparse.FileType('r'),
             nargs='*',
             default=sys.stdin,
             help="One or two files to be searched for matches of [regex]")
         self.args = parser.parse_args()
         self.exp = re.compile('.*({}).*'.format(self.args.regex[0]))
+        for arg in vars(self.args):
+            print(arg, getattr(self.args, arg), type(getattr(self.args, arg)))
+        if not (self.args.underscore or self.args.machine or self.args.color):
+            parser.error('Please select the output format [-c, -u, -uc, -m]')
+        if self.args.machine and (self.args.underscore or self.args.color):
+            parser.error('Machine format [-m] cannot be  combined with [-c] or [-u]')
         if len(self.args.regex[0]) == 0 or self.args.regex[0].isspace():
             parser.error('Invalid expression') #Error if regex empty or not set
-
+        if sys.stdin.isatty() and self.args.files is sys.stdin: #Error if no file specified on tty
+            parser.error('No input file specified')
         try:
             if len(self.args.files) not in (1, 2):
                 parser.error('Input files limit of 2 exceeded') #Error if files are more than two
@@ -74,6 +81,7 @@ class regSearch:
         parts = line.split('{}'.format(to_colr))
         for part in parts[:-1]:
             out += part + colorCodes.RED + '{}'.format(to_colr) + colorCodes.END
+        out += parts[-1]
         return out
 
     def machine(self, filename, line_num, matches, matched):
@@ -137,7 +145,7 @@ class regSearch:
             elif self.args.color:
                 res = self.colorize(
                     infile.name, line, line_num, matched_string)
-            print res
+            print(res) # Python 3 compatibility
 
 
 if __name__ == '__main__':
@@ -147,7 +155,7 @@ if __name__ == '__main__':
             finder.output(file)
             file.close()  # Close the files handle, because argparse leaves them open
     else:
-        temp = tempfile.NamedTemporaryFile('r+w,encoding=ascii') #Use tempfile to bypass limitation of re module not being able to use regexes on a stream. Alternatively the regex mdule can be used
+        temp = tempfile.NamedTemporaryFile('r+w') #,encoding=ascii' Use tempfile to bypass limitation of re module not being able to use regexes on a stream. Alternatively the regex mdule can be used
         try:
             temp.writelines('{}'.format(sys.stdin.read()))
             temp.seek(0)

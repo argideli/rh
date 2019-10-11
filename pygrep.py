@@ -7,11 +7,24 @@ import linecache
 
 class colorCodes:
     RED = '\x1b[1;31;40m'
+    PURPLE = '\x1b[35;40m'
     END = '\x1b[0m'
 
 
 class regSearch:
     def __init__(self):
+        #self.argument_handler()
+
+        self.args = self.argument_handler()
+        self.exp = self.reg_compiler(self.args.regex[0])
+        print('INIT:',self.args)
+        print('INIT:',self.exp)
+
+    def reg_compiler(self, regex):
+        exp = re.compile('.*({}).*'.format(regex))
+        return exp
+
+    def argument_handler(self, argv=None):
         """Constructor, initializes the argument parser (argparse) and runs checks on the provided arguments."""
         parser = argparse.ArgumentParser(
             description='Python grep implementation')
@@ -38,23 +51,28 @@ class regSearch:
             nargs='*',
             default=sys.stdin,
             help="One or two files to be searched for matches of [regex]")
-        self.args = parser.parse_args()
-        self.exp = re.compile('.*({}).*'.format(self.args.regex[0]))
-        for arg in vars(self.args):
-            print(arg, getattr(self.args, arg), type(getattr(self.args, arg)))
-        if not (self.args.underscore or self.args.machine or self.args.color):
+        args = parser.parse_args()
+        #self.exp = re.compile('.*({}).*'.format(args.regex[0]))
+        #for arg in vars(args):
+        #    print(arg, getattr(args, arg), type(getattr(args, arg)))
+        if not (args.underscore or args.machine or args.color):
             parser.error('Please select the output format [-c, -u, -uc, -m]')
-        if self.args.machine and (self.args.underscore or self.args.color):
+        if args.machine and (args.underscore or args.color):
             parser.error('Machine format [-m] cannot be  combined with [-c] or [-u]')
-        if len(self.args.regex[0]) == 0 or self.args.regex[0].isspace():
+        if len(args.regex[0]) == 0 or args.regex[0].isspace():
             parser.error('Invalid expression') #Error if regex empty or not set
-        if sys.stdin.isatty() and self.args.files is sys.stdin: #Error if no file specified on tty
+        if sys.stdin.isatty() and args.files is sys.stdin: #Error if no file specified on tty
             parser.error('No input file specified')
         try:
-            if len(self.args.files) not in (1, 2):
+            if len(args.files) not in (1, 2):
                 parser.error('Input files limit of 2 exceeded') #Error if files are more than two
         except TypeError:
             pass
+
+        #for arg in vars(args):
+        #    print(arg, getattr(args, arg))
+        #print(args)
+        return args
 
     def underscore(self, filename, line, line_num, matches):
         """Inserts the underscore ^ character under every character position (whiteline until then), the start and end position of the match are provided by the [matches] dictionary, the resulting string containing two lines is returned.
@@ -75,7 +93,7 @@ class regSearch:
     def colorize(self, filename, line, line_num, to_colr):
         """Returns the input [line] with the matches colorized by partitioning on the matched string [to_colr] and inserting the color codes in the appropriate position.
         """
-        out = '{} line {}: '.format(filename, line_num)
+        out =  colorCodes.PURPLE + '{} line {}:{} '.format(filename, line_num, colorCodes.END)
         if self.args.underscore:
             out = ''
         parts = line.split('{}'.format(to_colr))
@@ -121,8 +139,9 @@ class regSearch:
             matches[match] = {'start': starts, 'stop': stops}
         return matches
 
-    def output(self, infile):
+    def run(self, infile):
         """Gets the index for every match, reads the line containing the match from [infile] and calls the appropriate function to format the output as specified by the user and prints it."""
+        #self.args = self.argument_handler()
         res = ''
         matches = self.match_indices(infile)
         for line_num in sorted(matches.keys()):
@@ -151,14 +170,15 @@ class regSearch:
 if __name__ == '__main__':
     finder = regSearch()
     if sys.stdin.isatty():
+        finder.argument_handler()
         for file in finder.args.files:
-            finder.output(file)
+            finder.run(file)
             file.close()  # Close the files handle, because argparse leaves them open
     else:
         temp = tempfile.NamedTemporaryFile('r+w') #,encoding=ascii' Use tempfile to bypass limitation of re module not being able to use regexes on a stream. Alternatively the regex mdule can be used
         try:
             temp.writelines('{}'.format(sys.stdin.read()))
             temp.seek(0)
-            finder.output(temp)
+            finder.run(temp)
         finally:
             temp.close()

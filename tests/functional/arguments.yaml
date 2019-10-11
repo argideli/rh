@@ -1,0 +1,49 @@
+output_opt1: !mux
+    not-provided:
+        output_opt1: ''
+    color:
+        output_opt1: 'c'
+    underscore:
+        output_opt1: 'u'
+    machine:
+      output_opt1: 'm'
+output_opt2: !mux
+        not-provided:
+            output_opt2: ''
+        color:
+            output_opt2: 'c'
+        underscore:
+            output_opt2: 'u'
+        machine:
+            output_opt2: 'm'
+regex: !mux
+    empty:
+        regex: ""
+    wrong:
+        regex: "expresion12345"
+    simple:
+        regex: "'[0-9]'"
+    complex:
+        regex: 'complex_expression'
+file1: !mux
+    not-provided:
+        file1: ''
+    non-existent:
+        file1: 'non-existent.txt'
+    empty:
+        file1: 'empty_file.txt'
+    test_file1:
+        file1: 'log_file1_1.txt'
+    test_file1:
+        file1: 'log_file1_2.txt'
+file2: !mux
+    not-provided:
+        file2: ''
+    non-existent:
+        file2: 'non-existent.txt'
+    empty:
+        file2: 'empty_file.txt'
+    test_file2:
+        file2: 'log_file2_1.txt'
+    test_file2:
+        file2: 'log_file2_2.txt'

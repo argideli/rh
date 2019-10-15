@@ -9,26 +9,6 @@ changes in the code, the script uses the avocado framework to run the testing su
 and also it can be used in conjunction with the tox automation tool to test in different
 python versions.
 
-usage: pygrep.py [-h] [-u] [-c] [-m] regex [files [files ...]]
-
-positional arguments:
-
-  regex             Search expression enclosed in single quotes ex.
-                    'something.*[0-9]'
-
-  files             One or two files to be searched for matches of [regex]
-
-optional arguments:
-
-  -h, --help        show this help message and exit
-
-  -u, --underscore  Print '^' under the matching text
-
-  -c, --color       Colorize matches
-
-  -m, --machine     Generate machine readable output`
-
-
 *Requirements*
 
 Running:

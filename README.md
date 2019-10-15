@@ -1,6 +1,3 @@
-[id="pygrep-tool-{context}"]
-
-=pygrep
 pygrep is a tool that can be used to to search one or two files for matches of
 a regular expression. It has four modes of output, the colored [-c]  that paints
 the matches with red color. The caret indicator mode that places the caret ^ symbol
@@ -12,6 +9,8 @@ changes in the code, the script uses the avocado framework to run the testing su
 and also it can be used in conjunction with the tox automation tool to test in different
 python versions.
 
+[NOTE]
+====
 usage: pygrep.py [-h] [-u] [-c] [-m] regex [files [files ...]]
 positional arguments:
   regex             Search expression enclosed in single quotes ex.
@@ -23,8 +22,9 @@ optional arguments:
   -u, --underscore  Print '^' under the matching text
   -c, --color       Colorize matches
   -m, --machine     Generate machine readable output`
+====
 
-=Requirements
+*Requirements*
 
 Running:
 
@@ -36,7 +36,7 @@ Testing:
 * avocado-framework-plugin-loader-yaml
 * avocado-framework-plugin-varianter-yaml-to-mux
 
-=Example usage
+*Example usage*
 
 
 stdin:

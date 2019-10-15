@@ -20,30 +20,22 @@ regex: !mux
     empty:
         regex: ""
     wrong:
-        regex: "expresion12345"
-    simple:
-        regex: "'[0-9]'"
-    complex:
-        regex: 'complex_expression'
+        regex: "'*.*con.* '"
+    regex1:
+        regex1: "'run'"
+    regex2:
+        regex1: "'run.*/'"
 file1: !mux
     not-provided:
-        file1: ''
-    non-existent:
-        file1: 'non-existent.txt'
+        file1: ""
     empty:
         file1: 'empty_file.txt'
     test_file1:
-        file1: 'log_file1_1.txt'
-    test_file1:
-        file1: 'log_file1_2.txt'
+        file1: 'log_file1.txt'
 file2: !mux
     not-provided:
         file2: ''
-    non-existent:
-        file2: 'non-existent.txt'
     empty:
         file2: 'empty_file.txt'
     test_file2:
-        file2: 'log_file2_1.txt'
-    test_file2:
-        file2: 'log_file2_2.txt'
+        file2: 'log_file2.txt'

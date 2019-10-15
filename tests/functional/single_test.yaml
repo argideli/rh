@@ -1,0 +1,5 @@
+output_opt1: 'c'
+output_opt2: ''
+regex: "'run'"
+file1: 'log_file1.txt'
+file2: 'log_file2.txt'

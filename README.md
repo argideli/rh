@@ -1,6 +1,6 @@
 [id="pygrep-tool-{context}"]
 
-== pygrep
+=pygrep
 pygrep is a tool that can be used to to search one or two files for matches of
 a regular expression. It has four modes of output, the colored [-c]  that paints
 the matches with red color. The caret indicator mode that places the caret ^ symbol
@@ -11,8 +11,7 @@ Also there is a functionality testing script that can be used to evaluate possib
 changes in the code, the script uses the avocado framework to run the testing suite
 and also it can be used in conjunction with the tox automation tool to test in different
 python versions.
-====
-....
+
 usage: pygrep.py [-h] [-u] [-c] [-m] regex [files [files ...]]
 positional arguments:
   regex             Search expression enclosed in single quotes ex.
@@ -24,20 +23,20 @@ optional arguments:
   -u, --underscore  Print '^' under the matching text
   -c, --color       Colorize matches
   -m, --machine     Generate machine readable output`
-....
-====
-=== Requirements
+
+=Requirements
+
 Running:
 
 * python >= 2.7
 
 Testing:
 
-** avocado framework https://avocado-framework.github.io/
-*** avocado-framework-plugin-loader-yaml
-*** avocado-framework-plugin-varianter-yaml-to-mux
+* avocado framework https://avocado-framework.github.io/
+* avocado-framework-plugin-loader-yaml
+* avocado-framework-plugin-varianter-yaml-to-mux
 
-=== Example usage
+=Example usage
 
 
 stdin:
@@ -51,128 +50,3 @@ pipe:
 file read:
 
   python pygrep.py -c  ':.\*con.* ' log_file1 log_file2.txt
-
-
-=== Code Reference
-
-===== pygrep.py
-====
-imports: _os, re, stat, argparse, tempfile, linecache_
-
-_Class_ pygrep.*colorCodes*():
-
-====Class that encapsulates the color codes used to format the output when user invokes the -c argument
-
-_Class_ pygrep.*regSearch*():
-
-    Class that contains all the necessary methods to perform the regex search in the files
-
-pygrep.regSearch.*\\__init__* (self=_obj_):
-
-  Constructor method initializes the class variable args provided by the method
-  argument_handler and also the exp variable that contains the compiled regular expression
-
-pygrep.regSearch.*reg_compiler*(regex=_str_):
-
-  Compiles the regular expression that was provided in order to be used to find matches.
-
-pygrep.regSearch.*argument_handler*(self=_obj_):
-
-  Uses the argparse package and provides argument handling and recognizes erroneous arguments
-
-pygrep.regSearch.*underscore*(self=_obj_, filename=_str_, line=_str_, line_num=_int_):
-
-    Inserts the underscore ^ character under every character position
-    (whiteline until then), the start and end position of the match are
-    provided by the [matches] dictionary, the resulting string
-    containing two lines is returned.
-
-pygrep.regSearch.*colorize*(self=_obj_, filename=_str_, line=_str_, line_num=_int_, to_colr=_str_):
-
-  Inserts color codes in the string contained by the line variable. The exact
-  position is calculated by spliting the string by the match that was found in
-  the line. The match string is provided by to_colr
-
-pygrep.regSearch.*machine*(self=_obj_, filename=_str_, line_num, matches, matched):
-
-        Outputs the matches in a tabular fashion that is easily understood
-        by other applications the format is filename:line_number:start_position:matched_text
-
-pygrep.regSearch.*get_line*(self=_obj_, infile=_file_, line_num=_int_):
-
-  Reads a specific line in position [line_num] from a file with the use of the
-  linecache package
-
-
-pygrep.regSearch.*match_lines*(self=_obj_, infile=_file_):
-
-  Generator function used in function match_indices to initialize the
-  matches dictionary yields the lines that contain matches of the regular
-  expression
-
-pygrep.regSearch.*match_indices*(self=_obj_, infile=_file_):
-
-  Initializes a dictionary with keys the lines that matched the regular
-  expression provided, then inserts a sub-dictionary for every key that
-  contains the list of character positions that mark the match start and the
-  match stop of the regular expression in the line.
-   example:
-               {307: {'start': [10],
-                      'stop':  [74]},
-                315: {'start': [10, 15],
-                      'stop':  [84, 84]},
-                541: {'start': [10],
-                      'stop':  [70]},
-                549: {'start': [10, 15],
-                      'stop':  [80, 80]}}
-
-pygrep.regSearch.*run*.(self=_obj_, infile=_file_):
-
-   Gets the index for every match, reads the line containing the match
-   from [infile] and calls the appropriate function to format the output
-   as specified by the user and prints it to stdout.
-====
-=== test_arguments_and_functionality.py
-====
-imports: _os, sys, argparse, filecmp, avocado.Test, avocado.main, avocado.utils.process_
-
-_class_ test_arguments_and_functionality.*funcTesting*(Test=_obj_):
-
-  Runs the tests, it accepts an avocado.Test object as a parameter. The test
-  parameters are handled by the avocado yaml-to-mux plugin which provides us
-  with 576 argument variations for calling pygrep.py. The parameters are stored
-  in the arguments.yaml file in a mux tree, the possible values are as follows:
-  :param output_opt1: Output formatting option [u,c,m]
-  :param output_opt2: Output formatting option [u,c,m]
-  :param regex: Regular expresion used for the tests, two correct, one wrong
-                and an empty [empty, wrong, regex1, regex2]
-  :param file1: First file option for the test [empty, not-provided, file1]
-  :param file2: First file option for the test [empty,, not-provided, file2]
-
-test_arguments_and_functionality.*datafiles_generator*(self=_obj_):
-
-  This method generates the data files for the possible expected outputs of the
-  two regular expressions used in the tests it produces 24 distinct possible outcomes that
-  are stored in the test_arguments_and_functionality.py.data folder for reuse,
-  because a number of argument combinations produce the same output. The filenames
-  are hard-coded in a list of lists for every possible combination. After a check
-  if the file exists it gets created by writing the output of pygrep to the
-  respected file
-
-test_arguments_and_functionality.*output_comparison*(self=_obj_, expected_file=_str_):
-
-
-  The method uses the filecmp package to compare the test_out.txt that was generated
-  by the test with the saved correct output of the pygrep with the specified parameters.
-  If the files are different than an assertion is raised and the test is marked as failed
-
-
-test_arguments_and_functionality.*test_functionality*(self=_obj_):
-
-  This is the method that runs the invoking the script with the parameters that
-  are provided by the yaml file. A substantial number of tests are done for error
-  checking, thus comes the need to differentiate them from the normal runs. This
-  is done by testing the arguments to find the test case they belong. Either they
-  do not produce output and are expected to fail or either they do produce output
-  that is tested for similarity with the appropriate valid output file.
-====
